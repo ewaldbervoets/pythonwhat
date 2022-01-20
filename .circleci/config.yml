@@ -11,11 +11,25 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip
+      # - run:
+      #     name: Run tests
+      #     command: pytest -m "not compiled" --cov=pythonwhat
+  publish-test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
       - run:
-          name: Run tests
-          command: pytest -m "not compiled" --cov=pythonwhat
+          command: |
+            python setup.py sdist bdist_wheel
+            sudo pip install pipenv
+            pipenv install twine
+            pipenv run twine upload --repository testpypi dist/*
 
 workflows:
   build:
     jobs:
       - build-and-test
+      - publish-test:
+          requires:
+            - build-and-test
