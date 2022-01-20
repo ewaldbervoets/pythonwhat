@@ -22,7 +22,7 @@ jobs:
       - run:
           command: |
             python setup.py sdist bdist_wheel
-            sudo pip install pipenv
+            pip install pipenv
             pipenv install twine
             pipenv run twine upload --repository testpypi dist/*
 
