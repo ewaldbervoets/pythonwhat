@@ -11,10 +11,10 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip
-      # - run:
-      #     name: Run tests
-      #     command: pytest -m "not compiled" --cov=pythonwhat
-  publish-test:
+      - run:
+          name: Run tests
+          command: pytest -m "not compiled" --cov=pythonwhat
+  publish:
     docker:
       - image: cimg/python:3.9
     steps:
@@ -24,12 +24,17 @@ jobs:
             python setup.py sdist bdist_wheel
             pip install pipenv
             pipenv install twine
-            pipenv run twine upload --verbose --repository testpypi dist/*
+            pipenv run twine upload --verbose --repository pypi dist/*
 
 workflows:
   build:
     jobs:
       - build-and-test
-      - publish-test:
+      - publish:
           requires:
             - build-and-test
+          filters:
+            tags:
+              only: /^.*#v\d+\.\d+\.\d+(-rc\.\d+)?$/
+            branches:
+              ignore: /.*/
